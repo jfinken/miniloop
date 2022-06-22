@@ -15,7 +15,8 @@ struct lh_entry;
 
 namespace JSON {
 
-class Object {
+class Object
+{
 public:
     static Object fromFile(const std::string& path);
     static Object fromStr(const std::string& str);
@@ -27,7 +28,7 @@ public:
 
     Object& operator=(const Object& o);
 
-    bool isValid() const;
+    bool     isValid() const;
     explicit operator bool() const { return isValid(); }
 
     bool isInt() const;
@@ -38,23 +39,27 @@ public:
 
     Object operator[](const std::string& arg) const;
 
-    int asInt() const;
+    int         asInt() const;
     const char* asString() const;
-    bool asBoolean() const;
+    bool        asBoolean() const;
 
-    class iterator : public std::iterator<std::input_iterator_tag, Object> {
+    class iterator : public std::iterator<std::input_iterator_tag, Object>
+    {
         friend Object;
 
     public:
         iterator& operator++();
-        iterator operator++(int)
+        iterator  operator++(int)
         {
             iterator retval = *this;
             ++(*this);
             return retval;
         }
         bool operator==(const iterator& other) const;
-        bool operator!=(const iterator& other) const { return !(*this == other); }
+        bool operator!=(const iterator& other) const
+        {
+            return !(*this == other);
+        }
         Object operator*() const;
 
         const char* key() const;
@@ -63,8 +68,9 @@ public:
         iterator(Object* container, struct lh_entry* object_entry);
         iterator(Object* container, int array_index);
         Object* container;
-        union {
-            int array_index;
+        union
+        {
+            int              array_index;
             struct lh_entry* object_entry;
         };
         static iterator end();
@@ -74,7 +80,7 @@ public:
 
 private:
     Object(json_object* o);
-    struct json_object* o { nullptr };
+    struct json_object* o{ nullptr };
 };
 
 }
