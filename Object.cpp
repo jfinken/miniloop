@@ -17,6 +17,12 @@ Object::fromFile(const std::string& path)
     return json_object_from_file(path.c_str());
 }
 
+Object
+Object::fromStr(const std::string& str)
+{
+    return json_tokener_parse(str.c_str());
+}
+
 Object::Object(const Object& other)
   : o(other.o)
 {
