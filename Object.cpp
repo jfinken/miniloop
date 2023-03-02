@@ -14,13 +14,25 @@ using namespace JSON;
 Object
 Object::fromFile(const std::string& path)
 {
-    return json_object_from_file(path.c_str());
+    json_object* o{ json_object_from_file(path.c_str()) };
+    Object       ret{ o };
+
+    if (nullptr != o)
+        json_object_put(o);
+
+    return ret;
 }
 
 Object
 Object::fromStr(const std::string& str)
 {
-    return json_tokener_parse(str.c_str());
+    json_object* o{ json_tokener_parse(str.c_str()) };
+    Object       ret{ o };
+
+    if (nullptr != o)
+        json_object_put(o);
+
+    return ret;
 }
 
 Object::Object(const Object& other)
