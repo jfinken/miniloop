@@ -18,31 +18,43 @@ namespace JSON {
 class Object
 {
 public:
+    // Creation/destruction interface
     static Object fromFile(const std::string& path);
     static Object fromStr(const std::string& str);
 
-    Object() = default;
-    Object(const Object& o);
-    Object(Object&& o);
-    ~Object();
+    Object() noexcept = default;
+    Object(const Object& o) noexcept;
+    Object(Object&& o) noexcept;
+    ~Object() noexcept;
+    Object& operator=(const Object& o) noexcept;
 
-    Object& operator=(const Object& o);
+    // Testing interface
+    bool     isValid() const noexcept;
+    explicit operator bool() const noexcept { return isValid(); }
+    bool     isInt() const noexcept;
+    bool     isString() const noexcept;
+    bool     isObject() const noexcept;
+    bool     isArray() const noexcept;
+    bool     isBoolean() const noexcept;
 
-    bool     isValid() const;
-    explicit operator bool() const { return isValid(); }
+    // Object interface
+    Object operator[](const std::string& arg) const noexcept;
+    bool   insert(const std::string& key, const Object& val) noexcept;
+    bool   erase(const std::string& key) noexcept;
 
-    bool isInt() const;
-    bool isString() const;
-    bool isObject() const;
-    bool isArray() const;
-    bool isBoolean() const;
+    // Array interface
+    bool   append(const Object& val) noexcept;
+    bool   erase(int idx) noexcept;
+    bool   insert(int idx, const Object& val) noexcept;
+    Object operator[](int idx) noexcept;
 
-    Object operator[](const std::string& arg) const;
+    // Conversion interface
+    int         asInt() const noexcept;
+    const char* asString() const noexcept;
+    bool        asBoolean() const noexcept;
+    std::string toStr() const noexcept;
 
-    int         asInt() const;
-    const char* asString() const;
-    bool        asBoolean() const;
-
+    // Iterator
     class iterator : public std::iterator<std::input_iterator_tag, Object>
     {
         friend Object;
@@ -75,8 +87,8 @@ public:
         };
         static iterator end();
     };
-    iterator begin();
-    iterator end();
+    iterator begin() noexcept;
+    iterator end() noexcept;
 
 private:
     Object(json_object* o);

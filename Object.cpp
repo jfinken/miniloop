@@ -11,6 +11,11 @@
 
 using namespace JSON;
 
+/**
+ * @brief fromFile Create from a JSON file
+ * @param path The path of the file
+ * @return The created JSON object
+ */
 Object
 Object::fromFile(const std::string& path)
 {
@@ -23,8 +28,13 @@ Object::fromFile(const std::string& path)
     return ret;
 }
 
+/**
+ * @brief fromStr Create from a JSON-formatted string
+ * @param str The string
+ * @return The created JSON object
+ */
 Object
-Object::fromStr(const std::string& str)
+Object::fromStr(const std::string& str = "{}")
 {
     json_object* o{ json_tokener_parse(str.c_str()) };
     Object       ret{ o };
@@ -35,27 +45,43 @@ Object::fromStr(const std::string& str)
     return ret;
 }
 
-Object::Object(const Object& other)
+/**
+ * @brief Object Copy constructor
+ * @param other
+ */
+Object::Object(const Object& other) noexcept
   : o(other.o)
 {
     if (other.isValid())
         json_object_get(o);
 }
 
-Object::Object(Object&& other)
+/**
+ * @brief Object Move constructor
+ * @param other
+ */
+Object::Object(Object&& other) noexcept
   : o(other.o)
 {
     other.o = nullptr;
 }
 
-Object::~Object()
+/**
+ * @brief ~Object Destructor
+ */
+Object::~Object() noexcept
 {
     if (isValid())
         json_object_put(o);
 }
 
+/**
+ * @brief operator= Assignement operator
+ * @param other
+ * @return The assigned JSON object
+ */
 Object&
-JSON::Object::operator=(const Object& other)
+Object::operator=(const Object& other) noexcept
 {
     if (isValid())
         json_object_put(o);
@@ -68,40 +94,73 @@ JSON::Object::operator=(const Object& other)
     return *this;
 }
 
+/**
+ * @brief isValid Test the validity of the JSON object
+ * @return true / false
+ */
 bool
-Object::isValid() const
+Object::isValid() const noexcept
 {
     return nullptr != o;
 }
 
+/**
+ * @brief isInt Test if the JSON object contains an integer
+ * @return true / false
+ */
 bool
-Object::isInt() const
+Object::isInt() const noexcept
 {
     return isValid() && json_object_is_type(o, json_type_int);
 }
+
+/**
+ * @brief isString Test if the JSON object contains a string
+ * @return true / false
+ */
 bool
-Object::isString() const
+Object::isString() const noexcept
 {
     return isValid() && json_object_is_type(o, json_type_string);
 }
+
+/**
+ * @brief isObject Test if the JSON object contains an Object
+ * @return true / false
+ */
 bool
-Object::isObject() const
+Object::isObject() const noexcept
 {
     return isValid() && json_object_is_type(o, json_type_object);
 }
+
+/**
+ * @brief isArray Test if the JSON object contains an array
+ * @return true / false
+ */
 bool
-JSON::Object::isArray() const
+Object::isArray() const noexcept
 {
     return isValid() && json_object_is_type(o, json_type_array);
 }
+
+/**
+ * @brief isBoolean Test if the JSON object contains a boolean
+ * @return true / false
+ */
 bool
-JSON::Object::isBoolean() const
+Object::isBoolean() const noexcept
 {
     return isValid() && json_object_is_type(o, json_type_boolean);
 }
 
+/**
+ * @brief operator[] Index operator for JSON Object
+ * @param arg the key of the JSON object
+ * @return The JSON object associated to the required key
+ */
 Object
-Object::operator[](const std::string& arg) const
+Object::operator[](const std::string& arg) const noexcept
 {
     if (isObject()) {
         json_object* child;
@@ -112,8 +171,149 @@ Object::operator[](const std::string& arg) const
     return nullptr;
 }
 
-JSON::Object::iterator
-JSON::Object::begin()
+/**
+ * @brief insert Insert a couple key/value in the JSON Object
+ * @param key The key (a string)
+ * @param val The value (a JSON object)
+ * @return True in case of success, false otherwise
+ */
+bool
+Object::insert(const std::string& key, const Object& val) noexcept
+{
+    bool ret{ false };
+
+    if (!val.isObject())
+        return ret;
+
+    if (!isObject())
+        return ret;
+
+    ret = (0 == json_object_object_add(o, key.c_str(), val.o));
+
+    if (ret)
+        json_object_get(val.o);
+
+    return ret;
+}
+
+/**
+ * @brief erase Erase the JSON object at the specified key
+ * @param key The key
+ * @return true if the key/value pair was successfully removed
+ */
+bool
+Object::erase(const std::string& key) noexcept
+{
+    bool ret{ false };
+
+    if (!isObject())
+        return ret;
+
+    json_object_object_del(o, key.c_str());
+
+    return true;
+}
+
+/**
+ * @brief append Append to the JSON array
+ * @param val The object to append to the array
+ * @return true if the JSON object was successfully appened
+ */
+bool
+Object::append(const Object& val) noexcept
+{
+    bool ret{ false };
+
+    if (!val.isObject())
+        return ret;
+
+    if (!isArray())
+        return ret;
+
+    ret = (0 == json_object_array_add(o, val.o));
+
+    if (ret)
+        json_object_get(val.o);
+
+    return ret;
+}
+
+/**
+ * @brief erase Erase an element at a specific index of the JSON array
+ * @param idx The index
+ * @return true if an element was removed at that index
+ */
+bool
+Object::erase(int idx) noexcept
+{
+    bool ret{ false };
+
+    if (!isArray())
+        return ret;
+
+    if (0 > idx || json_object_array_length(o) <= static_cast<size_t>(idx))
+        return ret;
+
+    ret = (0 == json_object_array_del_idx(o, static_cast<size_t>(idx), 1));
+
+    return ret;
+}
+
+/**
+ * @brief insert Insert an element at a specific index in the JSON array
+ * @param idx The index
+ * @param val The JSON Object to insert
+ * @return true if the element was successfully inserted
+ */
+bool
+Object::insert(int idx, const Object& val) noexcept
+{
+    bool ret{ false };
+
+    if (!isArray())
+        return ret;
+
+    if (!val.isObject())
+        return ret;
+
+    if (0 > idx)
+        return ret;
+
+    ret = (0 == json_object_array_put_idx(o, static_cast<size_t>(idx), val.o));
+
+    if (ret)
+        json_object_get(val.o);
+
+    return ret;
+}
+
+/**
+ * @brief operator[] Access an element at a specific index
+ * @param idx The index
+ * @return The element (JSON object) - not necessarily valid
+ */
+Object
+Object::operator[](int idx) noexcept
+{
+    Object ret;
+
+    if (!isArray())
+        return ret;
+
+    if (0 > idx)
+        return ret;
+
+    ret = Object(json_object_array_get_idx(o, static_cast<size_t>(idx)));
+
+    return ret;
+}
+
+/**
+ * @brief begin Return an iterator to the first element of the object
+ * @return The iterator
+ */
+Object::iterator
+Object::begin() noexcept
 {
     if (isObject())
         return iterator(this, json_object_get_object(o)->head);
@@ -123,39 +323,82 @@ JSON::Object::begin()
     return end();
 }
 
-JSON::Object::iterator
-JSON::Object::end()
+/**
+ * @brief end Return an iterator to the element following the last element of
+ * the object
+ * @return The iterator
+ */
+Object::iterator
+Object::end() noexcept
 {
     return iterator::end();
 }
 
-JSON::Object::Object(json_object* ptr)
+/**
+ * @brief Object Private constructor - libJSON-c wrapping
+ * @param ptr a json_object (\see
+ * https://json-c.github.io/json-c/json-c-0.10/doc/html/structjson__object.html)
+ */
+Object::Object(json_object* ptr)
   : o(ptr)
 {
     if (isValid())
         json_object_get(o);
 }
 
+/**
+ * @brief asInt Interprets the JSON object as an integer
+ * @return The integer
+ *
+ * @note You might want to check its type (\see isInt()) first
+ */
 int
-JSON::Object::asInt() const
+Object::asInt() const noexcept
 {
     return json_object_get_int(o);
 }
 
+/**
+ * @brief asString Interprets the JSON object as a c string
+ * @return The c string
+ *
+ * @note You might want to check its type (\see isString()) first
+ */
 const char*
-JSON::Object::asString() const
+Object::asString() const noexcept
 {
     return isValid() ? json_object_get_string(o) : "";
 }
 
+/**
+ * @brief asBoolean Interprets the JSON object as a boolean
+ * @return The boolean
+ *
+ * @note You might want to check its type (\see isBoolean()) first
+ */
 bool
-JSON::Object::asBoolean() const
+Object::asBoolean() const noexcept
 {
     return json_object_get_boolean(o);
 }
 
-JSON::Object::iterator&
-JSON::Object::iterator::operator++()
+/**
+ * @brief toStr Stringify the object to JSON format
+ * @return A string to JSON format
+ */
+std::string
+Object::toStr() const noexcept
+{
+    std::string ret;
+
+    if (isValid())
+        ret = json_object_to_json_string(o);
+
+    return ret;
+}
+
+Object::iterator&
+Object::iterator::operator++()
 {
     if (!operator==(end())) {
         if (container->isObject()) {
@@ -173,7 +416,7 @@ JSON::Object::iterator::operator++()
 }
 
 bool
-JSON::Object::iterator::operator==(const iterator& other) const
+Object::iterator::operator==(const iterator& other) const
 {
     if (container != other.container)
         return false;
@@ -187,8 +430,8 @@ JSON::Object::iterator::operator==(const iterator& other) const
         return array_index == other.array_index;
 }
 
-JSON::Object
-JSON::Object::iterator::operator*() const
+Object
+Object::iterator::operator*() const
 {
     if (!container)
         return nullptr;
@@ -200,7 +443,7 @@ JSON::Object::iterator::operator*() const
 }
 
 const char*
-JSON::Object::iterator::key() const
+Object::iterator::key() const
 {
     if (!container || !container->isObject())
         return nullptr;
@@ -208,19 +451,18 @@ JSON::Object::iterator::key() const
     return (char*)object_entry->k;
 }
 
-JSON::Object::iterator
-JSON::Object::iterator::end()
+Object::iterator
+Object::iterator::end()
 {
     return iterator(nullptr, 0);
 }
 
-JSON::Object::iterator::iterator(Object*          container,
-                                 struct lh_entry* object_entry)
+Object::iterator::iterator(Object* container, struct lh_entry* object_entry)
   : container(container)
   , object_entry(object_entry)
 {}
 
-JSON::Object::iterator::iterator(Object* container, int array_index)
+Object::iterator::iterator(Object* container, int array_index)
   : container(container)
   , array_index(array_index)
 {}
