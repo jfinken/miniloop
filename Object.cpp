@@ -17,7 +17,7 @@ using namespace JSON;
  * @return The created JSON object
  */
 Object
-Object::fromFile(const std::string& path)
+Object::fromFile(const std::string& path) noexcept
 {
     json_object* o{ json_object_from_file(path.c_str()) };
     Object       ret{ o };
@@ -29,12 +29,27 @@ Object::fromFile(const std::string& path)
 }
 
 /**
+ * @brief fromFile Create from a JSON file
+ * @param path The path of the file
+ * @return The created JSON object
+ */
+bool
+Object::toFile(const std::string& path, const JSON::Object& o) noexcept
+{
+    if (o.isValid())
+        return false;
+
+    return (-1 !=
+            json_object_to_file_ext(path.c_str(), o.o, JSON_C_TO_STRING_PLAIN));
+}
+
+/**
  * @brief fromStr Create from a JSON-formatted string
  * @param str The string
  * @return The created JSON object
  */
 Object
-Object::fromStr(const std::string& str = "{}")
+Object::fromStr(const std::string& str) noexcept
 {
     json_object* o{ json_tokener_parse(str.c_str()) };
     Object       ret{ o };
@@ -42,6 +57,75 @@ Object::fromStr(const std::string& str = "{}")
     if (nullptr != o)
         json_object_put(o);
 
+    return ret;
+}
+
+/**
+ * @brief newObject Create a new JSON object
+ * @return The resulting Object
+ */
+Object
+Object::newObject() noexcept
+{
+    Object ret;
+
+    ret.o = json_object_new_object();
+    return ret;
+}
+
+/**
+ * @brief newInt Create a new JSON integer
+ * @param i The input string
+ * @return The resulting Object
+ */
+Object
+Object::newInt(int i) noexcept
+{
+    Object ret;
+
+    ret.o = json_object_new_int(i);
+    return ret;
+}
+
+/**
+ * @brief newBoolean Create a new JSON boolean
+ * @param b The input boolean
+ * @return The resulting Object
+ */
+Object
+Object::newBoolean(bool b) noexcept
+{
+    Object ret;
+
+    ret.o = json_object_new_boolean(b);
+    return ret;
+}
+
+/**
+ * @brief newArray Create a new JSON array
+ * @param size The size of the array
+ * @return The resulting Object
+ */
+Object
+Object::newArray(int size) noexcept
+{
+    Object ret;
+
+    ret.o = json_object_new_array_ext(size);
+    return ret;
+}
+
+/**
+ * @brief newString Create a new JSON string
+ * @param str The input string
+ * @return The resulting Object
+ */
+Object
+Object::newString(const std::string& str) noexcept
+{
+    Object ret;
+
+    ret.o = json_object_new_string(str.c_str());
     return ret;
 }
 

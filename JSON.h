@@ -19,8 +19,15 @@ class Object
 {
 public:
     // Creation/destruction interface
-    static Object fromFile(const std::string& path);
-    static Object fromStr(const std::string& str);
+    static bool toFile(const std::string& path, const JSON::Object& o) noexcept;
+    static Object fromFile(const std::string& path) noexcept;
+    static Object fromStr(const std::string& str) noexcept;
+
+    static Object newObject() noexcept;
+    static Object newInt(int) noexcept;
+    static Object newBoolean(bool) noexcept;
+    static Object newArray(int) noexcept;
+    static Object newString(const std::string&) noexcept;
 
     Object() noexcept = default;
     Object(const Object& o) noexcept;
