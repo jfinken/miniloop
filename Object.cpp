@@ -266,7 +266,7 @@ Object::insert(const std::string& key, const Object& val) noexcept
 {
     bool ret{ false };
 
-    if (!val.isObject())
+    if (!val.isValid())
         return ret;
 
     if (!isObject())
