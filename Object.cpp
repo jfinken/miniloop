@@ -36,7 +36,7 @@ Object::fromFile(const std::string& path) noexcept
 bool
 Object::toFile(const std::string& path, const JSON::Object& o) noexcept
 {
-    if (o.isValid())
+    if (!o.isValid())
         return false;
 
     return (-1 !=
@@ -357,7 +357,7 @@ Object::insert(int idx, const Object& val) noexcept
     if (!isArray())
         return ret;
 
-    if (!val.isObject())
+    if (!val.isValid())
         return ret;
 
     if (0 > idx)
