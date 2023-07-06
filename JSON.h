@@ -1,9 +1,3 @@
-/**
- * Copyright (C) 2022 Osmozis SA - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
-
 #ifndef SRC_JSON_JSON_H_
 #define SRC_JSON_JSON_H_
 
