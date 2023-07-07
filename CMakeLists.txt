@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(miniJSON VERSION 1.0.0)
+project(miniLoop VERSION 1.0.0)
 
-set(miniJSON_BRIEF  "Lightweight cpp wrapper around json-c")
+set(miniLoop_BRIEF  "Lightweight cpp wrapper around libevent")
 
 include(${PROJECT_SOURCE_DIR}/cmake/SetEnv.cmake)
 
