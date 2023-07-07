@@ -1,5 +1,4 @@
 add_library(${LIBRARY_NAME} SHARED  ${SOURCES})
-
 add_library(${PROJECT_NAME}::${LIBRARY_NAME} 
   ALIAS ${LIBRARY_NAME})
 
