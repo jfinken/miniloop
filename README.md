@@ -18,10 +18,13 @@ It wraps [libevent](https://libevent.org/) and is therefore easily extendable to
 #include <miniLoop/Loop.h>
 #include <signal.h>
 #include <iostream>
+#include <memory>
 
 #define TIMEOUT_HOURLY 3600 * 1000
 
-int main(/*int argc, char* argv[]) {
+using namespace loop;
+
+int main(/*int argc, char* argv[]*/) {
 
     // Subscribe to SIGINT signal for example
     auto sigintEvt{ Loop::UNIX_SIGNAL(SIGINT) };
@@ -31,7 +34,7 @@ int main(/*int argc, char* argv[]) {
     auto takeBreak{ std::make_unique<Loop::RecurrentTimeout>(TIMEOUT_HOURLY) };
     takeBreak->onTimeout([](){
         std::cout << "Take a break !" << std::endl;
-    }
+    });
 
     // Start the loop
     Loop::singleton().run();
