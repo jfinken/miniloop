@@ -1,0 +1,16 @@
+# @LIBRARY_NAME@ pkg-config source file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=${exec_prefix}/@libdir@
+includedir=${exec_prefix}/@includedir@
+
+Name: @LIBRARY_NAME@
+URL: https://github.com/MericLuc/miniloop
+Description: @LIBRARY_NAME@ is a lightweight C++ eventloop wrapping libevent
+Version: @PROJECT_VERSION@
+Requires: 
+Conflicts:
+Libs: -L${libdir} -l@LIBRARY_NAME@
+Libs.private: @LIBS@
+Cflags: -I${includedir}

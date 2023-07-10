@@ -1,4 +1,4 @@
-add_library(${LIBRARY_NAME} SHARED  ${SOURCES})
+add_library(${LIBRARY_NAME} ${LIB_TYPE}  ${SOURCES})
 add_library(${PROJECT_NAME}::${LIBRARY_NAME} 
   ALIAS ${LIBRARY_NAME})
 
@@ -9,22 +9,16 @@ pkg_check_modules(LIBEVENT_PTHREADS REQUIRED libevent_pthreads )
 
 find_package(miniJSON 1.0 REQUIRED)
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS          "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib" )
-set_target_properties(${LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE    CXX                                       )
-set_target_properties(${LIBRARY_NAME} PROPERTIES PUBLIC_HEADER      "${HEADERS_PUBLIC}"                       )
-set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME        "${LIBRARY_NAME}"                         )
-set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX             ".so"                                     )
-set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX             "lib"                                     )
+set_target_properties(${LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE    CXX                  )
+set_target_properties(${LIBRARY_NAME} PROPERTIES PUBLIC_HEADER      "${HEADERS_PUBLIC}"  )
+set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME        "${LIBRARY_NAME}"    )
+set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX             "${LIB_SUFFIX}"      )
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX             "lib"                )
 
 target_compile_definitions(
     ${LIBRARY_NAME}
     PUBLIC
         "${PROJECT_NAME_UPPERCASE}_DEBUG=$<CONFIG:Debug>")
-
-target_link_directories(${LIBRARY_NAME}
-    PUBLIC
-        ${CMAKE_INSTALL_PREFIX}/lib
-)
 
 target_include_directories(
     ${LIBRARY_NAME}
@@ -71,3 +65,14 @@ install(
   DESTINATION "${CONFIG_INSTALL_DIR}"
   NAMESPACE   "${PROJECT_NAME}::"
 )
+
+set(prefix      ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix ${CMAKE_INSTALL_PREFIX})
+set(libdir      ${CMAKE_INSTALL_LIBDIR})
+set(includedir  ${CMAKE_INSTALL_INCLUDEDIR})
+set(LIBS        "-l${LIBEVENT_LIBRARIES} -l${LIBEVENT_CORE_LIBRARIES} -l${LIBEVENT_PTHREADS_LIBRARIES}")
+
+configure_file("${PROJECT_SOURCE_DIR}/libminiloop.pc.in"
+               "${GENERATED_DIR}/libminiloop.pc" @ONLY)
+install(FILES "${GENERATED_DIR}/libminiloop.pc"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
