@@ -60,6 +60,14 @@ make install
 make uninstall
 ```
 
+- Configuration options
+
+| name                 | type     | description                        | default value
+| -------------------- | -------- | ---------------------------------- | ---------------
+|  `BUILD_SHARED_LIBS` | boolean  | Build miniLoop as a shared library | ON
+|  `BUILD_EXAMPLE`     | boolean  | Also build provided usage example  | OFF
+
+
 ## Dependencies
 
 miniLoop depends on :
