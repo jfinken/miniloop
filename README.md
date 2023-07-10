@@ -14,7 +14,7 @@ It wraps [libevent](https://libevent.org/) and is therefore easily extendable to
 
 ## How to use
 
-```
+```c++
 #include <miniLoop/Loop.h>
 #include <signal.h>
 #include <iostream>
@@ -48,7 +48,7 @@ int main(/*int argc, char* argv[]*/) {
 
 - Install
 
-```
+```bash
 cmake [-S ${path/to/src}] [-DCMAKE_NSTALL_PREFIX=${install/prefix}] .
 make
 make install
@@ -56,7 +56,7 @@ make install
 
 - Uninstall
 
-```
+```bash
 make uninstall
 ```
 
