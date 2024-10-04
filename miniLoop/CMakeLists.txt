@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES   
     Loop.cpp
-    AlarmClock.cpp
+#AlarmClock.cpp
     Timeout.cpp
     UnixSignal.cpp
     IO.cpp)

@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 
-#include <miniJSON/JSON.h>
 
 struct event;
 struct event_base;
@@ -190,95 +189,6 @@ private:
     struct event_base* event_base{ nullptr };
 };
 
-class AlarmClock
-{
-public:
-    static std::shared_ptr<AlarmClock> create(
-      const JSON::Object& spec) noexcept;
-
-    virtual ~AlarmClock() = default;
-
-    virtual void onAlarm(std::function<void()> callback) noexcept;
-    virtual void reset() noexcept = 0;
-
-    class Alarm
-    {
-    public:
-        enum Days
-        {
-            DAY_MONDAY = 1 << 0,
-            DAY_TUESDAY = 1 << 1,
-            DAY_WEDNESDAY = 1 << 2,
-            DAY_THURSDAY = 1 << 3,
-            DAY_FRIDAY = 1 << 4,
-            DAY_SATURDAY = 1 << 5,
-            DAY_SUNDAY = 1 << 6,
-        };
-        static const int DAY_EVERY = 0xFF;
-
-        /** makes an invalid object (will never trig) */
-        Alarm() = default;
-        ~Alarm() = default;
-
-        /**
-         * { "hours": <int>, "minutes": <int>, "on": [ "mon", "tue", "wed",
-         * "thu", "fri", "sat", "sun" ] } when "on" is not provided, occurs
-         * everyday.
-         */
-        Alarm(const JSON::Object& alarmSpec);
-
-             operator bool() const { return valid; }
-        bool matches(int time, int day);
-
-    private:
-        bool valid{ false };
-        int  days{ DAY_EVERY };
-        int  time{ 0 };
-    };
-
-protected:
-    std::function<void()> callback;
-    bool                  triggered{ false };
-};
-
-/**
- * Utility class to trigger an action at a specified time and day of the week.
- */
-class RecurrentAlarm : public AlarmClock
-{
-public:
-    RecurrentAlarm() noexcept;
-    RecurrentAlarm(const JSON::Object& params) noexcept;
-
-    virtual ~RecurrentAlarm() noexcept override;
-
-    virtual void reset() noexcept override;
-
-    void set(Alarm a);
-
-private:
-    Alarm                        alarm;
-    loop::Loop::RecurrentTimeout timeout{ 30000 };
-};
-
-/**
- * Utility class to trigger an action at a specified time after creation
- */
-class OneShotAlarm : public AlarmClock
-{
-public:
-    OneShotAlarm() noexcept;
-    OneShotAlarm(const JSON::Object& params) noexcept;
-
-    virtual ~OneShotAlarm() noexcept override;
-
-    virtual void reset() noexcept override;
-
-    void set(int after_ms) noexcept;
-
-private:
-    loop::Loop::Timeout timeout;
-};
 
 }
 

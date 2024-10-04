@@ -7,7 +7,6 @@ pkg_check_modules(LIBEVENT          REQUIRED libevent          )
 pkg_check_modules(LIBEVENT_CORE     REQUIRED libevent_core     )
 pkg_check_modules(LIBEVENT_PTHREADS REQUIRED libevent_pthreads )
 
-find_package(miniJSON 1.0 REQUIRED)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE    CXX                  )
 set_target_properties(${LIBRARY_NAME} PROPERTIES PUBLIC_HEADER      "${HEADERS_PUBLIC}"  )
@@ -31,7 +30,7 @@ target_include_directories(
 target_link_libraries(
     ${LIBRARY_NAME}
     PUBLIC
-        miniJSON
+        # no json
     PRIVATE
         ${LIBEVENT_LIBRARIES}
         ${LIBEVENT_CORE_LIBRARIES}

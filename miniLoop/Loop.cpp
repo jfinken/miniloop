@@ -31,6 +31,7 @@ Loop::~Loop()
 void
 Loop::run()
 {
+    // Event dispatching loop in event.h
     event_base_dispatch(event_base);
 }
 
